@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<!-- ============================================================================
+     VIDEO-EDITOR PORTFOLIO  —  editorial style (based on the Behance example)
+     ============================================================================
+
+     HOW TO PUT IN THE CUSTOMER'S OWN CONTENT
+
+     Everywhere you see a note that starts with  "REPLACE:"  change the text or
+     the image right next to it.
+
+     ▸ To change TEXT: just type over the words between the tags.
+
+     ▸ To add a PHOTO to a slot: each grey box is a div with class "slot".
+       Inside it there is a span with a label. Replace that inner span with an
+       image tag, for example:  img src equals "images/work1.jpg"
+       (Keep the box's class:  "v" = tall/vertical, "h" = wide, "sq" = square.)
+
+     ▸ Put all the picture files in a folder called  images  next to this file.
+
+     ▸ To make a project OPEN A VIDEO when clicked, turn the "slot" div into a
+       link (an "a" tag) that points to the YouTube / Vimeo URL, target _blank.
+
+     See README.txt in this folder for copy-paste examples.
+     ============================================================================ -->
+
+<title>Hamza mer — Portfolio 2026</title> <!-- REPLACE: browser tab title (the name) -->
+
+<!-- Text font: SF Pro on Apple devices (built in), Switzer as the near-identical fallback on Windows/Android -->
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700,800,900&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --paper:#ECEAE2;      /* cream background        */
+    --ink:#0e1116;        /* dark text (on white)     */
+    --muted:#5c6270;      /* grey                     */
+    --line:rgba(0,0,0,.12);        /* divider lines      */
+    --slot:rgba(10,40,90,.06);     /* light placeholder  */
+    --surface:rgba(255,255,255,.82); /* light glass chrome */
+    --maxw:1180px;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:#ffffff; color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Switzer','Helvetica Neue',Helvetica,Arial,sans-serif; line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  img{ display:block; width:100%; height:100%; object-fit:cover; }
+  a{ color:inherit; text-decoration:none; }
+
+  .display{ font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Switzer','Helvetica Neue',Helvetica,Arial,sans-serif; font-weight:900; letter-spacing:-.035em; line-height:.9; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 32px; }
+  section{ padding:110px 0; position:relative; background:transparent; }
+
+  /* tiny numbered label like "(2) About me" */
+  .kicker{ font-family:'Switzer'; font-weight:700; font-size:1.35rem; display:flex; align-items:baseline; gap:12px; margin-bottom:28px; }
+  .kicker .n{ color:var(--muted); font-size:.95rem; }
+
+  /* decorative marks */
+  .star{ font-size:1.6rem; line-height:1; color:var(--ink); }
+  .plus{ font-weight:300; font-size:2rem; color:var(--muted); }
+  .deco-row{ display:flex; justify-content:space-between; color:var(--muted); }
+
+  /* fixed vertical name tag on the right edge */
+  .sidetag{
+    position:fixed; right:0; top:50%; transform:translateY(-50%);
+    background:var(--surface); backdrop-filter:blur(8px); color:var(--ink); border:1px solid var(--line); border-right:0;
+    writing-mode:vertical-rl; text-orientation:mixed;
+    padding:20px 8px; font-family:'Switzer'; font-weight:700; font-size:.85rem;
+    letter-spacing:.15em; z-index:40; border-radius:6px 0 0 6px;
+  }
+
+  /* ---------------- NAV ---------------- */
+  header{ position:sticky; top:0; z-index:50; background:rgba(255,255,255,.82); backdrop-filter:blur(12px); border-bottom:1px solid var(--line); transition:background .3s; }
+  header.scrolled{ background:rgba(255,255,255,.92); }
+  header .brand{ color:var(--ink); } header .links a{ color:var(--muted); font-weight:600; } header .menu-btn{ color:var(--ink); }
+  nav{ max-width:var(--maxw); margin:0 auto; display:flex; align-items:center; justify-content:space-between; padding:16px 32px; }
+  nav .brand{ font-family:'Switzer'; font-weight:900; font-size:1.1rem; }
+  nav .links{ display:flex; gap:26px; }
+  nav .links a{ font-size:.9rem; font-weight:500; transition:color .2s; }
+  nav .links a:hover{ color:var(--ink); }
+  .menu-btn{ display:none; background:none; border:0; font-size:1.5rem; cursor:pointer; }
+
+  /* ---------------- COVER ---------------- */
+  .cover{ position:relative; min-height:92vh; display:flex; align-items:center; justify-content:center; text-align:center; padding:100px 0 80px;
+    background:transparent; color:var(--ink); overflow:hidden; }
+  .cover .wrap{ position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; }
+  .cover-mark{ position:absolute; top:64px; z-index:2; color:var(--muted); }
+  .cover-star{ left:32px; }
+  .cover-plus{ right:32px; }
+  /* animated aurora — FIXED full-screen background (stays put on scroll, keeps animating) */
+  .aurora{ position:fixed; inset:0; z-index:-1; overflow:hidden; filter:blur(75px); pointer-events:none;
+    background:linear-gradient(115deg,#ffffff 0%,#ffffff 22%,#cfe2ff 70%,#b6d4ff 100%); }
+  /* subtle veil for text contrast across all sections */
+  .veil{ position:fixed; inset:0; z-index:-1; pointer-events:none; background:transparent; }
+  .aurora span{ position:absolute; display:block; border-radius:50%; mix-blend-mode:normal; }
+  .a1{ width:48vw; height:48vw; left:-8%; top:4%;   background:#5f9dff; opacity:.74; animation:drift1 11s ease-in-out infinite; }
+  .a2{ width:44vw; height:44vw; right:-6%; top:-8%; background:#7fb2ff; opacity:.68; animation:drift2 13s ease-in-out infinite; }
+  .a3{ width:40vw; height:40vw; left:18%; bottom:-16%; background:#8dc0ff; opacity:.62; animation:drift3 12s ease-in-out infinite; }
+  .a4{ width:38vw; height:38vw; right:6%;  bottom:-2%; background:#3f86f5; opacity:.72; animation:drift1 14s ease-in-out infinite reverse; }
+  .a5{ width:30vw; height:30vw; left:40%; top:20%;  background:#6aa6ff; opacity:.64; animation:drift2 15s ease-in-out infinite; }
+  @keyframes drift1{ 0%,100%{ transform:translate(0,0) scale(1); } 50%{ transform:translate(13%,-15%) scale(1.2); } }
+  @keyframes drift2{ 0%,100%{ transform:translate(0,0) scale(1); } 50%{ transform:translate(-15%,11%) scale(1.18); } }
+  @keyframes drift3{ 0%,100%{ transform:translate(0,0) scale(1); } 50%{ transform:translate(10%,-10%) scale(1.22); } }
+  /* orbit rings + floating crystal + particles (in the hero) */
+  .orbits{ position:absolute; inset:0; z-index:1; pointer-events:none; }
+  .orbit-rings{ position:absolute; right:-120px; bottom:-150px; width:560px; height:560px; opacity:.7; animation:spin 70s linear infinite; }
+  .orbit-rings.two{ right:auto; bottom:auto; left:-170px; top:-170px; width:460px; height:460px; opacity:.5; animation-duration:95s; animation-direction:reverse; }
+  .crystal{ position:absolute; right:130px; bottom:205px; width:64px; filter:drop-shadow(0 10px 24px rgba(120,80,220,.4)); animation:floaty 7s ease-in-out infinite; }
+  .dot{ position:absolute; width:5px; height:5px; border-radius:50%; background:rgba(45,110,225,.55); opacity:.5; animation:twinkle 4s ease-in-out infinite; }
+  .dot.d1{ right:200px; bottom:320px; } .dot.d2{ right:90px; bottom:150px; animation-delay:1.2s; }
+  .dot.d3{ left:18%; top:30%; animation-delay:.6s; } .dot.d4{ right:280px; bottom:120px; width:3px; animation-delay:2s; }
+  .dot.d5{ left:30%; bottom:22%; width:3px; animation-delay:1.6s; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  @keyframes floaty{ 0%,100%{ transform:translateY(0) rotate(-6deg); } 50%{ transform:translateY(-16px) rotate(5deg); } }
+  @keyframes twinkle{ 0%,100%{ opacity:.15; } 50%{ opacity:.85; } }
+  .cover .year{ font-family:'Switzer'; font-weight:700; font-size:1.1rem; letter-spacing:.1em; color:var(--muted); }
+  .cover h1{ font-size:clamp(3.2rem,15vw,12rem); margin:10px 0 4px; }
+  .cover .role{ font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Switzer','Helvetica Neue',Helvetica,Arial,sans-serif; font-weight:700; font-size:clamp(1.2rem,4vw,2.4rem); letter-spacing:-.02em; color:var(--ink); }
+  .cover .role em{ font-style:normal; font-weight:400; color:var(--ink); }
+  .cover .intro{ max-width:520px; margin-top:26px; color:var(--muted); font-size:1.05rem; }
+
+  /* ---------------- ABOUT ---------------- */
+  .about-grid{ display:grid; grid-template-columns:1.35fr 1fr; gap:56px; align-items:center; }
+  .portrait{ aspect-ratio:4/5; background:transparent; border:0; backdrop-filter:none; border-radius:0; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+  .portrait span{ color:var(--muted); font-size:.85rem; text-align:center; padding:16px; }
+  .portrait img{ object-fit:contain; }
+  .about h2{ font-size:clamp(2.6rem,8vw,6rem); }
+  .about p.bio{ margin:24px 0; font-size:1.1rem; max-width:520px; }
+  .about p.bio b{ font-weight:600; }
+  .meta{ display:grid; grid-template-columns:auto 1fr; gap:14px 24px; font-size:.95rem; border-top:1px solid var(--line); padding-top:20px; align-items:center; }
+  /* social icon links */
+  .social-inline{ display:inline-flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .soc-sm{ display:inline-flex; color:var(--ink); opacity:.8; transition:opacity .2s, transform .2s; }
+  .soc-sm:hover{ opacity:1; transform:translateY(-2px); }
+  .socials{ display:flex; gap:14px; justify-content:center; margin-top:28px; }
+  .soc{ display:inline-flex; align-items:center; justify-content:center; width:46px; height:46px; border:1px solid var(--line); border-radius:50%; color:var(--ink); transition:background .2s, color .2s, transform .2s; }
+  .soc:hover{ background:var(--ink); color:#fff; border-color:var(--ink); transform:translateY(-3px); }
+  .meta b{ font-family:'Switzer'; font-weight:700; }
+
+  /* ---------------- WORK EXPERIENCE ---------------- */
+  .exp-grid{ display:grid; grid-template-columns:1fr 1fr; gap:56px; }
+  .exp-grid h2{ font-size:clamp(2.6rem,7vw,5.4rem); line-height:.92; }
+  .exp-item{ margin-bottom:38px; }
+  .exp-item .top{ font-family:'Switzer'; font-weight:800; font-size:1.35rem; display:flex; gap:10px; }
+  .exp-item .top .n{ color:var(--muted); font-size:.9rem; }
+  .exp-item .when{ font-family:'Switzer'; font-weight:600; font-size:.95rem; margin:2px 0 8px; }
+  .exp-item p{ color:var(--muted); font-size:.95rem; max-width:440px; }
+
+  /* ---------------- CATEGORY SECTIONS ---------------- */
+  .cat-title{ font-size:clamp(3rem,13vw,9.5rem); text-align:center; margin:14px 0 40px; }
+  .cat-head{ display:grid; grid-template-columns:1.1fr .9fr; gap:48px; align-items:center; margin-bottom:44px; }
+  .cat-head h3{ font-size:clamp(2.4rem,6vw,4.4rem); }
+  .cat-intro p{ color:var(--muted); max-width:440px; margin-top:22px; }
+  /* big featured VIDEO that sits next to the section title */
+  .feature-slot{ aspect-ratio:9/16; width:100%; max-width:390px; margin-left:auto; background:var(--slot); backdrop-filter:blur(6px); border-radius:6px; overflow:hidden; display:flex; align-items:center; justify-content:center; position:relative; }
+  .feature-slot.landscape{ aspect-ratio:16/9; max-width:640px; }
+  .feature-slot span{ color:var(--muted); font-size:.82rem; text-align:center; padding:14px; line-height:1.5; }
+  .feature-slot video,.feature-slot iframe{ width:100%; height:100%; object-fit:contain; border:0; background:transparent; }
+  .feature-slot img{ width:100%; height:100%; object-fit:contain; border:0; }
+  .feature-slot.has-video{ cursor:pointer; }
+  .slot.has-video{ cursor:pointer; }
+  .slot video{ width:100%; height:100%; object-fit:contain; background:transparent; }
+  .feature-slot .play-hint, .slot .play-hint{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(10,14,20,.18); opacity:0; transition:opacity .25s; }
+  .feature-slot.has-video:hover .play-hint, .slot.has-video:hover .play-hint{ opacity:1; }
+  .feature-slot .play-hint .circle, .slot .play-hint .circle{ width:60px; height:60px; border-radius:50%; background:rgba(255,255,255,.92); display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(0,0,0,.35); transform:scale(.9); transition:transform .25s; }
+  .feature-slot.has-video:hover .play-hint .circle, .slot.has-video:hover .play-hint .circle{ transform:scale(1); }
+  .feature-slot .play-hint svg, .slot .play-hint svg{ width:22px; height:22px; margin-left:3px; }
+
+  /* ---------------- VIDEO LIGHTBOX ---------------- */
+  .video-modal{ position:fixed; inset:0; z-index:200; display:none; align-items:center; justify-content:center; padding:32px; background:rgba(8,10,16,.9); backdrop-filter:blur(10px); }
+  .video-modal.open{ display:flex; }
+  .video-modal .modal-inner{ position:relative; max-width:94vw; }
+  .video-modal video{ display:block; width:auto; height:auto; max-width:min(94vw,1100px); max-height:88vh; border-radius:12px; box-shadow:0 40px 100px rgba(0,0,0,.6); background:#000; }
+  .video-modal .modal-close{ position:absolute; top:-46px; right:0; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.3); color:#fff; font-size:1.1rem; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background .2s; }
+  .video-modal .modal-close:hover{ background:rgba(255,255,255,.25); }
+
+  /* image galleries */
+  .gallery{ display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; }
+  .gallery.wide{ grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); }
+  .slot{ background:var(--slot); backdrop-filter:blur(6px); border-radius:6px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; transition:transform .35s; }
+  .slot:hover{ transform:translateY(-4px); }
+  .slot span{ color:var(--muted); font-size:.82rem; text-align:center; padding:12px; pointer-events:none; }
+  .slot.v{ aspect-ratio:9/16; }
+  .slot.h{ aspect-ratio:16/9; }
+  .slot.sq{ aspect-ratio:1/1; }
+  .slot.span2{ grid-column:span 2; }
+  .slot.no-frame{ background:transparent; backdrop-filter:none; border:0; }
+
+  /* ---------------- SCAN / END ---------------- */
+  .scan{ display:flex; align-items:center; gap:48px; flex-wrap:wrap; justify-content:center; }
+  .scan h2{ font-size:clamp(2.8rem,10vw,7rem); }
+  .qr{ width:200px; height:200px; background:var(--slot); backdrop-filter:blur(6px); border-radius:6px; display:flex; align-items:center; justify-content:center; text-align:center; color:var(--muted); font-size:.8rem; padding:14px; }
+  .contact-line{ text-align:center; margin-top:60px; font-family:'Switzer'; font-weight:600; }
+  .contact-line a{ text-decoration:underline; }
+
+  footer{ background:var(--surface); backdrop-filter:blur(10px); color:var(--muted); text-align:center; padding:26px; font-size:.85rem; border-top:1px solid var(--line); }
+
+  hr.sep{ border:0; border-top:1px solid var(--line); margin:0; }
+
+  /* floating WhatsApp button */
+  .wa-btn{ position:fixed; right:22px; bottom:22px; z-index:60; width:60px; height:60px; border-radius:50%; background:#25D366; color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(0,0,0,.22); transition:transform .2s, box-shadow .2s; }
+  .wa-btn:hover{ transform:translateY(-3px) scale(1.05); box-shadow:0 12px 30px rgba(37,211,102,.45); }
+  .wa-btn svg{ width:34px; height:34px; }
+  .wa-btn::after{ content:""; position:absolute; inset:0; border-radius:50%; animation:waPulse 2.4s infinite; }
+  @keyframes waPulse{ 0%{ box-shadow:0 0 0 0 rgba(37,211,102,.45); } 70%{ box-shadow:0 0 0 16px rgba(37,211,102,0); } 100%{ box-shadow:0 0 0 0 rgba(37,211,102,0); } }
+
+  /* reveal */
+  .reveal{ opacity:0; transform:translateY(26px); transition:opacity .7s, transform .7s; }
+  .reveal.in{ opacity:1; transform:none; }
+
+  /* kinetic (motion-graphics) section titles — letters slide up out of a motion blur */
+  .kword{ display:inline-block; white-space:nowrap; }   /* keeps each word from breaking mid-letter */
+  .kin .kw{
+    display:inline-block; opacity:0;
+    transform:translateY(.55em) rotate(5deg) scale(.96); filter:blur(16px);
+    transition:opacity .7s ease, transform .85s cubic-bezier(.2,.85,.25,1), filter .85s ease;
+  }
+  .kin.kin-in .kw{ opacity:1; transform:none; filter:blur(0); }
+
+  @media (max-width:820px){
+    .about-grid,.exp-grid,.cat-head{ grid-template-columns:1fr; }
+    .feature-slot{ margin:0 auto; }
+    nav .links{ display:none; }
+    .menu-btn{ display:block; }
+    .sidetag{ display:none; }
+    .meta{ grid-template-columns:auto 1fr; }
+    section{ padding:70px 0; }
+    .wrap{ padding:0 20px; }
+    .gallery.wide{ grid-template-columns:1fr; }
+    .slot.span2{ grid-column:span 1; }
+  }
+  @media (prefers-reduced-motion:reduce){ *{ animation:none!important; transition:none!important; } .reveal{ opacity:1; transform:none; } .kin .kw{ opacity:1!important; transform:none!important; filter:none!important; } .wa-btn::after{ animation:none; } .aurora span,.orbit-rings,.crystal,.dot{ animation:none!important; } }
+</style>
+</head>
+<body>
+
+<!-- REPLACE: the vertical name tag on the right edge -->
+<div class="sidetag">HAMZA MER</div>
+
+<!-- Floating WhatsApp button (uses Mer's number +212 606-706913). Edit the message after ?text= if you want. -->
+<a class="wa-btn" href="https://wa.me/212606706913?text=Hi%20Mer%2C%20I%20saw%20your%20portfolio%20and%20I%27d%20like%20to%20work%20with%20you." target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 0 1 8.413 3.488 11.824 11.824 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.978-1.042zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+</a>
+
+<!-- ================= NAV ================= -->
+<header>
+  <nav>
+    <a href="#top" class="brand">HAMZA MER<span style="color:var(--muted)">.</span></a>
+    <div class="links">
+      <a href="#about">About</a>
+      <a href="#experience">Experience</a>
+      <a href="#work">Work</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <button class="menu-btn" aria-label="Menu">☰</button>
+  </nav>
+</header>
+
+<!-- ================= COVER ================= -->
+<section class="cover" id="top">
+  <div class="aurora" aria-hidden="true">
+    <span class="a1"></span><span class="a2"></span><span class="a3"></span><span class="a4"></span><span class="a5"></span>
+  </div>
+  <div class="veil" aria-hidden="true"></div>
+  <div class="orbits" aria-hidden="true">
+    <svg class="orbit-rings" viewBox="0 0 400 400" fill="none">
+      <circle cx="200" cy="200" r="120" stroke="rgba(60,120,230,.22)"/>
+      <circle cx="200" cy="200" r="160" stroke="rgba(60,120,230,.15)"/>
+      <circle cx="200" cy="200" r="196" stroke="rgba(60,120,230,.09)"/>
+    </svg>
+    <svg class="orbit-rings two" viewBox="0 0 400 400" fill="none">
+      <circle cx="200" cy="200" r="150" stroke="rgba(60,120,230,.13)"/>
+      <circle cx="200" cy="200" r="196" stroke="rgba(60,120,230,.07)"/>
+    </svg>
+    <span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="dot d4"></span><span class="dot d5"></span>
+  </div>
+  <span class="star cover-mark cover-star">✳</span>
+  <span class="plus cover-mark cover-plus">+</span>
+  <div class="wrap">
+    <!-- REPLACE: year, name, role, intro -->
+    <div class="year reveal">PORTFOLIO 2026</div>
+    <h1 class="display reveal">Hamza<br>mer</h1>
+    <div class="role reveal">Video Editor,<em> Motion Designer &amp; 3D Artist</em></div>
+    <p class="intro reveal">A passionate Visual Storyteller, Motion Designer &amp; 3D Artist — turning creative concepts into high-impact visual experiences.</p>
+  </div>
+</section>
+
+<hr class="sep" />
+
+<!-- ================= ABOUT ================= -->
+<section class="about" id="about">
+  <div class="wrap">
+    <div class="about-grid">
+      <!-- REPLACE: the profile photo. Change the line below to:
+           <div class="portrait"><img src="images/profile.jpg" alt=""></div> -->
+      <div class="portrait reveal"><img src="images/profile.png" alt="Hamza mer"></div>
+
+      <div class="reveal">
+        <div class="kicker"><span class="n">(2)</span> About me</div>
+        <h2 class="display">Hamza<br>mer</h2>
+        <p class="bio">A passionate creator specializing in <b>Video Editing, Motion Graphics, and 3D Visuals</b>. With <b>2 years of professional experience</b> — spanning both independent freelancing and agency work — I combine dynamic pacing, custom animations, and immersive visuals to turn creative ideas into high-impact content that elevates brands and engages audiences.</p>
+        <!-- REPLACE: education / contact / born -->
+        <div class="meta">
+          <b>Email</b><span><a href="mailto:ouamerhamza5@gmail.com">ouamerhamza5@gmail.com</a></span>
+          <b>Phone</b><span><a href="tel:+212606706913">+212 606-706913</a></span>
+          <b>Social</b>
+          <span class="social-inline">
+            @meeer_art
+            <!-- REPLACE the href with the real profile links if different -->
+            <a class="soc-sm" href="https://www.tiktok.com/@meeer_art" target="_blank" aria-label="TikTok">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor" aria-hidden="true"><path d="M16.6 5.82a4.28 4.28 0 0 1-1.05-2.82h-3.1v12.4a2.53 2.53 0 1 1-2.53-2.53c.26 0 .5.04.74.11V7.8a5.7 5.7 0 0 0-.74-.05 5.62 5.62 0 1 0 5.62 5.62V9.01a7.3 7.3 0 0 0 4.06 1.23V7.14a4.28 4.28 0 0 1-2.94-1.32z"/></svg>
+            </a>
+            <a class="soc-sm" href="https://www.instagram.com/meeer_art/" target="_blank" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor" aria-hidden="true"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23a3.72 3.72 0 0 1-.9 1.38c-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.72 3.72 0 0 1-1.38-.9 3.72 3.72 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16zM12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63a5.88 5.88 0 0 0-2.12 1.38A5.88 5.88 0 0 0 .63 4.14C.33 4.9.13 5.78.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.26 2.15.56 2.91.31.8.72 1.47 1.38 2.13.66.66 1.33 1.07 2.13 1.38.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56a5.88 5.88 0 0 0 2.13-1.38 5.88 5.88 0 0 0 1.38-2.13c.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91a5.88 5.88 0 0 0-1.38-2.13A5.88 5.88 0 0 0 19.86.63c-.76-.3-1.64-.5-2.91-.56C15.67.01 15.26 0 12 0zm0 5.84A6.16 6.16 0 1 0 18.16 12 6.16 6.16 0 0 0 12 5.84zM12 16a4 4 0 1 1 4-4 4 4 0 0 1-4 4zm6.41-10.85a1.44 1.44 0 1 0 1.44 1.44 1.44 1.44 0 0 0-1.44-1.44z"/></svg>
+            </a>
+            <a class="soc-sm" href="https://www.facebook.com/meeer_art" target="_blank" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor" aria-hidden="true"><path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.89v2.25h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z"/></svg>
+            </a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep" />
+
+<!-- ================= WORK EXPERIENCE ================= -->
+<section id="experience">
+  <div class="wrap">
+    <div class="deco-row reveal"><span class="star">✳</span><span class="plus">+</span></div>
+    <div class="exp-grid">
+      <h2 class="display reveal">Work<br>Experience</h2>
+      <div>
+        <div class="exp-item reveal">
+          <div class="top">Freelance Video Editor &amp; Motion Designer</div>
+          <div class="when">1 Year · Independent Contractor</div>
+          <p>Worked directly with individual clients and brands to deliver high-quality video edits, custom motion graphics, sound design, and tailored visual assets across various digital platforms.</p>
+        </div>
+        <div class="exp-item reveal">
+          <div class="top">Sharp Agency</div>
+          <div class="when">Video Editor &amp; Motion Designer · 1 Year · Agency Experience</div>
+          <p>Managed full post-production workflows for agency clients — collaborating with creative teams to edit high-converting commercial videos, dynamic motion graphics, and engaging visual campaigns.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep" />
+
+<!-- ================= MOTION GRAPHIC ================= -->
+<section id="work">
+  <div class="wrap">
+    <div class="deco-row reveal"><span class="star">✳</span><span class="plus">+</span></div>
+    <h2 class="cat-title display reveal">Motion Graphics</h2>
+    <div class="cat-head">
+      <div class="cat-intro">
+        <h3 class="display reveal">Motion<br>Graphics.</h3>
+        <p class="reveal">Creating dynamic motion visuals for social media and commercial use — blending typography, shapes, and smooth animation to deliver clear messages aligned with brand identity.</p>
+      </div>
+      <!-- REPLACE: featured video next to the title. See README.txt for details.
+           Video file :  put  <video src="images/motion.mp4" autoplay muted loop playsinline></video>  inside the box below
+           YouTube    :  put  <iframe src="https://www.youtube.com/embed/VIDEO_ID" allowfullscreen></iframe>  inside the box below -->
+      <div class="feature-slot has-video reveal">
+        <video src="videos/motion-graphics-featured.mp4" autoplay muted loop playsinline preload="auto"></video>
+        <div class="play-hint">
+          <div class="circle"><svg viewBox="0 0 24 24" fill="#0e1116"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+      </div>
+    </div>
+    <!-- REPLACE each slot with the customer's motion-graphic thumbnails (vertical 9:16). -->
+    <div class="gallery wide">
+      <div class="slot h span2 has-video reveal">
+        <video src="videos/dualkey-motion.mp4" autoplay muted loop playsinline preload="auto"></video>
+        <div class="play-hint"><div class="circle"><svg viewBox="0 0 24 24" fill="#0e1116"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+      <div class="slot h span2 has-video reveal">
+        <video src="videos/ramadan-motion.mp4" autoplay muted loop playsinline preload="auto"></video>
+        <div class="play-hint"><div class="circle"><svg viewBox="0 0 24 24" fill="#0e1116"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+      <div class="slot v has-video reveal">
+        <video src="videos/motion-work-3.mp4" autoplay muted loop playsinline preload="auto"></video>
+        <div class="play-hint"><div class="circle"><svg viewBox="0 0 24 24" fill="#0e1116"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+      <div class="slot v has-video reveal">
+        <video src="videos/motion-work-4.mp4" autoplay muted loop playsinline preload="auto"></video>
+        <div class="play-hint"><div class="circle"><svg viewBox="0 0 24 24" fill="#0e1116"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+      <div class="slot v has-video reveal">
+        <video src="videos/motion-work-5.mp4" autoplay muted loop playsinline preload="auto"></video>
+        <div class="play-hint"><div class="circle"><svg viewBox="0 0 24 24" fill="#0e1116"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+      <div class="slot v has-video reveal">
+        <video src="videos/motion-work-6.mp4" autoplay muted loop playsinline preload="auto"></video>
+        <div class="play-hint"><div class="circle"><svg viewBox="0 0 24 24" fill="#0e1116"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+      <div class="slot v has-video reveal">
+        <video src="videos/motion-work-7.mp4" autoplay muted loop playsinline preload="auto"></video>
+        <div class="play-hint"><div class="circle"><svg viewBox="0 0 24 24" fill="#0e1116"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep" />
+
+<!-- ================= SHORT CONTENT ================= -->
+<section>
+  <div class="wrap">
+    <div class="deco-row reveal"><span class="star">✳</span><span class="plus">+</span></div>
+    <h2 class="cat-title display reveal">Short-Form Content</h2>
+    <div class="cat-head">
+      <div class="cat-intro">
+        <h3 class="display reveal">Short-Form<br>Content.</h3>
+        <p class="reveal">Editing fast-paced, high-retention short content for Reels, TikTok and Shorts — cutting clips, integrating sound design, dynamic captions, and keeping audiences hooked from the first second.</p>
+      </div>
+      <!-- REPLACE: featured video next to the title (same as above). -->
+      <div class="feature-slot has-video reveal">
+        <video src="videos/short-content-featured.mp4" autoplay muted loop playsinline preload="auto"></video>
+        <div class="play-hint"><div class="circle"><svg viewBox="0 0 24 24" fill="#0e1116"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+    </div>
+    <!-- REPLACE with the customer's short-form / reels thumbnails (vertical 9:16). -->
+    <div class="gallery">
+      <div class="slot v has-video reveal">
+        <video src="videos/reel-1.mp4" autoplay muted loop playsinline preload="auto"></video>
+        <div class="play-hint"><div class="circle"><svg viewBox="0 0 24 24" fill="#0e1116"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+      <div class="slot v has-video reveal">
+        <video src="videos/reel-2.mp4" autoplay muted loop playsinline preload="auto"></video>
+        <div class="play-hint"><div class="circle"><svg viewBox="0 0 24 24" fill="#0e1116"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+      <div class="slot v has-video reveal">
+        <video src="videos/reel-3.mp4" autoplay muted loop playsinline preload="auto"></video>
+        <div class="play-hint"><div class="circle"><svg viewBox="0 0 24 24" fill="#0e1116"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+      <div class="slot v has-video reveal">
+        <video src="videos/reel-4.mp4" autoplay muted loop playsinline preload="auto"></video>
+        <div class="play-hint"><div class="circle"><svg viewBox="0 0 24 24" fill="#0e1116"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+      <div class="slot v has-video reveal">
+        <video src="videos/reel-5.mp4" autoplay muted loop playsinline preload="auto"></video>
+        <div class="play-hint"><div class="circle"><svg viewBox="0 0 24 24" fill="#0e1116"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep" />
+
+<!-- ================= GRAPHIC DESIGN ================= -->
+<section>
+  <div class="wrap">
+    <div class="deco-row reveal"><span class="star">✳</span><span class="plus">+</span></div>
+    <h2 class="cat-title display reveal">Graphic Design</h2>
+    <div class="cat-head">
+      <div class="cat-intro">
+        <h3 class="display reveal">Brand Guidelines.</h3>
+        <p class="reveal">Designing high-converting visual assets such as YouTube thumbnails, social media banners, and posters with a focus on composition, color hierarchy, and brand consistency.</p>
+      </div>
+      <!-- REPLACE: featured video or poster next to the title (same as above). -->
+      <div class="feature-slot reveal"><img src="images/graphic-design-poster.png" alt="Dual Key brand guidelines poster"></div>
+    </div>
+    <!-- Design work. -->
+    <div class="gallery wide">
+      <div class="slot h span2 reveal"><img src="images/design-4.jpg" alt="Dual Key wordmark on gradient backdrop"></div>
+      <div class="slot h reveal"><img src="images/design-1.jpg" alt="Dual Key brand application mockup"></div>
+      <div class="slot h reveal"><img src="images/design-3.jpg" alt="Dual Key logo backgrounds sheet"></div>
+      <div class="slot h span2 reveal"><img src="images/design-2.jpg" alt="Dual Key brand summary overview"></div>
+      <div class="slot sq reveal no-frame"><img src="images/design-5.png" alt="Dual Key app icon"></div>
+      <div class="slot h reveal"><img src="images/design-6.jpg" alt="Dual Key keyboard texture backdrop"></div>
+      <div class="slot h reveal"><img src="images/design-7.jpg" alt="Dual Key workflow campaign visual"></div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep" />
+
+<!-- ================= 3D VISUALS & ENVIRONMENTS ================= -->
+<section>
+  <div class="wrap">
+    <div class="deco-row reveal"><span class="star">✳</span><span class="plus">+</span></div>
+    <h2 class="cat-title display reveal">3D Visuals</h2>
+    <div class="cat-head">
+      <div class="cat-intro">
+        <h3 class="display reveal">3D Visuals<br>&amp; Environments.</h3>
+        <p class="reveal">Building realistic 3D scenes, motion environments, and cinematic sequences using Blender and Unreal Engine to bring abstract ideas into tangible visual experiences.</p>
+      </div>
+      <!-- REPLACE: featured 3D reel next to the title (same as above). -->
+      <div class="feature-slot landscape reveal"><img src="images/graphic-design-featured.jpg" alt="Dual Key 3D render"></div>
+    </div>
+    <!-- 3D renders / scenes. -->
+    <div class="gallery wide">
+      <div class="slot h span2 has-video reveal">
+        <video src="videos/3d-featured.mp4" autoplay muted loop playsinline preload="auto"></video>
+        <div class="play-hint"><div class="circle"><svg viewBox="0 0 24 24" fill="#0e1116"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+      <div class="slot h reveal"><img src="images/3d-scene-1.jpg" alt="3D scene 1"></div>
+      <div class="slot h reveal"><img src="images/3d-scene-2.jpg" alt="3D scene 2"></div>
+      <div class="slot sq reveal"><img src="images/3d-scene-3.jpg" alt="3D scene 3"></div>
+      <div class="slot sq reveal"><img src="images/3d-scene-4.jpg" alt="3D scene 4"></div>
+      <div class="slot h reveal"><img src="images/3d-scene-5.jpg" alt="3D scene 5"></div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep" />
+
+<!-- ================= SCAN FOR MORE / CONTACT ================= -->
+<section id="contact">
+  <div class="wrap">
+    <div class="scan">
+      <h2 class="display reveal">Scan<br>for More.</h2>
+      <div class="qr reveal"><img src="images/qr.png" alt="Scan to chat on WhatsApp" style="width:100%;height:100%;object-fit:contain;"></div>
+    </div>
+    <!-- REPLACE: contact email / links -->
+    <p class="contact-line reveal">Let's work together — <a href="mailto:ouamerhamza5@gmail.com">ouamerhamza5@gmail.com</a></p>
+    <div class="socials reveal">
+      <a class="soc" href="https://www.tiktok.com/@meeer_art" target="_blank" aria-label="TikTok">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M16.6 5.82a4.28 4.28 0 0 1-1.05-2.82h-3.1v12.4a2.53 2.53 0 1 1-2.53-2.53c.26 0 .5.04.74.11V7.8a5.7 5.7 0 0 0-.74-.05 5.62 5.62 0 1 0 5.62 5.62V9.01a7.3 7.3 0 0 0 4.06 1.23V7.14a4.28 4.28 0 0 1-2.94-1.32z"/></svg>
+      </a>
+      <a class="soc" href="https://www.instagram.com/meeer_art/" target="_blank" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23a3.72 3.72 0 0 1-.9 1.38c-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.72 3.72 0 0 1-1.38-.9 3.72 3.72 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16zM12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63a5.88 5.88 0 0 0-2.12 1.38A5.88 5.88 0 0 0 .63 4.14C.33 4.9.13 5.78.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.26 2.15.56 2.91.31.8.72 1.47 1.38 2.13.66.66 1.33 1.07 2.13 1.38.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56a5.88 5.88 0 0 0 2.13-1.38 5.88 5.88 0 0 0 1.38-2.13c.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91a5.88 5.88 0 0 0-1.38-2.13A5.88 5.88 0 0 0 19.86.63c-.76-.3-1.64-.5-2.91-.56C15.67.01 15.26 0 12 0zm0 5.84A6.16 6.16 0 1 0 18.16 12 6.16 6.16 0 0 0 12 5.84zM12 16a4 4 0 1 1 4-4 4 4 0 0 1-4 4zm6.41-10.85a1.44 1.44 0 1 0 1.44 1.44 1.44 1.44 0 0 0-1.44-1.44z"/></svg>
+      </a>
+      <a class="soc" href="https://www.facebook.com/meeer_art" target="_blank" aria-label="Facebook">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.89v2.25h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= VIDEO LIGHTBOX (shared by all Featured video slots) ================= -->
+<div class="video-modal" id="videoModal">
+  <div class="modal-inner">
+    <div class="modal-close" id="videoModalClose" aria-label="Close video">✕</div>
+    <video id="videoModalPlayer" controls playsinline></video>
+  </div>
+</div>
+
+<footer>© 2026 Hamza mer — Video Editor, Motion Designer &amp; 3D Artist. All rights reserved.</footer>
+
+<script>
+  // ---- nav turns solid (cream) once you scroll past the aurora hero ----
+  const hdr = document.querySelector('header');
+  const onScroll = () => hdr.classList.toggle('scrolled', window.scrollY > window.innerHeight * 0.82);
+  window.addEventListener('scroll', onScroll, { passive:true }); onScroll();
+
+  // ---- kinetic section-title animation (words slide up out of a motion blur) ----
+  const heads = document.querySelectorAll('.cover h1, .about h2, .exp-grid h2, .cat-title, .cat-head h3, .scan h2');
+  heads.forEach(el=>{
+    el.classList.remove('reveal');     // let the kinetic effect own this element
+    el.classList.add('kin');
+    // split the heading into letters (words kept unbreakable), keeping any <br> line breaks
+    const parts = el.innerHTML.split(/<br\s*\/?>/i);
+    el.innerHTML = parts.map(seg =>
+      seg.trim().split(/\s+/).filter(Boolean).map(word =>
+        `<span class="kword">` +
+          [...word].map(ch => `<span class="kw">${ch}</span>`).join('') +
+        `</span>`
+      ).join(' ')
+    ).join('<br>');
+    el.querySelectorAll('.kw').forEach((k,i)=>{ k.style.transitionDelay = (i*0.015)+'s'; });
+  });
+  const kio = new IntersectionObserver((es)=>{
+    es.forEach(e=>{
+      if(e.intersectionRatio >= .2){ e.target.classList.add('kin-in'); }   // animate in
+      else if(e.intersectionRatio === 0){ e.target.classList.remove('kin-in'); } // reset when fully out → replays next time
+    });
+  }, { threshold:[0, .2] });
+  heads.forEach(el=>kio.observe(el));
+
+  // ---- simple fade/rise reveal for everything else ----
+  const io = new IntersectionObserver((es)=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold:.12 });
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  // ---- video lightbox: click any featured video to open it centered, full sound, page dimmed behind ----
+  const videoModal = document.getElementById('videoModal');
+  const modalPlayer = document.getElementById('videoModalPlayer');
+  const modalClose = document.getElementById('videoModalClose');
+
+  function openVideoModal(src, startTime){
+    modalPlayer.src = src;
+    modalPlayer.muted = false;
+    modalPlayer.currentTime = startTime || 0;
+    videoModal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    modalPlayer.play().catch(()=>{});
+  }
+  function closeVideoModal(){
+    modalPlayer.pause();
+    videoModal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.feature-slot, .slot.has-video').forEach(slot=>{
+    const vid = slot.querySelector('video');
+    if(!vid) return;
+    slot.classList.add('has-video');
+    slot.addEventListener('click', ()=> openVideoModal(vid.currentSrc || vid.src, vid.currentTime));
+  });
+
+  modalClose.addEventListener('click', closeVideoModal);
+  videoModal.addEventListener('click', (e)=>{ if(e.target === videoModal) closeVideoModal(); });
+  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeVideoModal(); });
+</script>
+</body>
+</html>
